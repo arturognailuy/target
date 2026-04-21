@@ -14,7 +14,7 @@ A general-purpose document search and ranking system. Given a collection of docu
 
 🚧 **Under active development** — not yet functional.
 
-See [docs/design.md](docs/design.md) for the full architecture and plan.
+See [.aidoc/INDEX.md](.aidoc/INDEX.md) for full architecture, design, testing strategy, and development plan.
 
 ## License
 
