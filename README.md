@@ -1,33 +1,25 @@
 # Target
 
-A general-purpose document search and ranking system. Given a collection of documents identified by stable keys, Target indexes them using both full-text search (BM25) and semantic embeddings, then returns ranked results for natural-language queries with explainable citations.
-
-## Features
-
-- **Hybrid retrieval:** combines BM25 (lexical) and vector similarity (semantic) for high-quality results
-- **Correction awareness:** when a newer document supersedes an older one, rankings reflect the correction
-- **Explainable results:** every ranked result includes traceable evidence pointers
-- **Simple interface:** the only concepts a consumer needs are *doc key* and *doc content*
-- **General purpose:** any system that produces `(key, text)` pairs can use Target
+General-purpose document search and ranking. Indexes documents by key, retrieves them via hybrid BM25 + semantic search with correction-aware ranking and explainable results.
 
 ## Quick Start
 
 ```bash
 pip install -e ".[dev]"
-
-# Index a document
 target index "doc:readme" README.md
-
-# Query
 target query "search ranking"
-
-# Run tests
-pytest -v
 ```
 
-## Status
+For semantic search: `pip install -e ".[dev,semantic]"` and use `target index key file --embed`.
 
-Phase 1: Foundation (ingest + lexical search + CLI). See [.aidoc/INDEX.md](.aidoc/INDEX.md) for full documentation.
+## Documentation
+
+This project uses [AI-Native documentation](https://github.com/gnailuy/target/tree/main/.aidoc) in `.aidoc/` for detailed architecture, design, and workflow docs.
+
+Full documentation index: [.aidoc/INDEX.md](.aidoc/INDEX.md)
+- [System Overview](.aidoc/architecture/system-overview.md) — architecture and modules
+- [Interface Contract](.aidoc/designs/interface-contract.md) — public API
+- [Setup Guide](.aidoc/workflows/setup-guide.md) — environment setup and development
 
 ## License
 

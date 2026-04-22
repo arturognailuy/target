@@ -41,28 +41,34 @@ ranked by BM25 score. Handles tokenization including CJK text and code blocks.
 
 ### target-sem (sqlite-vec)
 Generates embeddings for ingested chunks using a configurable embedding model (default:
-all-MiniLM-L6-v2 via sentence-transformers). Stores vectors in sqlite-vec. Accepts a query,
-embeds it, and returns chunks ranked by cosine similarity.
+all-MiniLM-L6-v2 via sentence-transformers). Stores vectors in sqlite-vec with cosine distance.
+Embedding is incremental — only un-embedded chunks are processed on each run. Accepts a query,
+embeds it, and returns chunks ranked by cosine similarity. Semantic extras are optional (`pip
+install target-search[semantic]`); the system gracefully degrades to lexical-only when absent.
 
-### target-correct
-Maintains a directed correction graph ("doc A corrects doc B"). Provides correction score
-modifiers for ranked results — boosting correctors, demoting corrected documents. Propagates
+### target-correct (Phase 3 — not yet implemented)
+Will maintain a directed correction graph ("doc A corrects doc B"). Will provide correction score
+modifiers for ranked results — boosting correctors, demoting corrected documents. Will propagate
 correction chains (A corrects B, B corrects C → A dominates C).
 
 ### target-rank
 Weighted merge layer. Combines scored candidate sets from lex, sem, and correct into a final
 ranked list. Scoring formula: `score = w_s·S + w_l·L + w_r·R + w_c·C + w_t·T` where S=semantic,
-L=lexical, R=recency, C=correction, T=trust. Weights are configurable; zeroing a weight disables
-that provider. Produces deterministic output for the same corpus, query, and weights.
+L=lexical, R=recency (exponential decay), C=correction, T=trust. Weights are configurable via
+`RankWeights` dataclass; zeroing a weight disables that provider. Correction weight is stubbed
+at 0.0 pending Phase 3. Produces deterministic output for the same corpus, query, and weights.
 
-### target-explain
-Generates citations and evidence for ranked results. Each result gets traceable evidence pointers,
+### target-explain (Phase 4 — not yet implemented)
+Will generate citations and evidence for ranked results. Each result will get traceable evidence pointers,
 reason codes (e.g., `SEM_MATCH`, `LEX_MATCH`, `CORRECTED`), and human-readable citation strings.
 
 ### target-cli
-Thin CLI wrapper using click. Commands implemented so far: `target index`, `target index-stdin`,
-`target query [--top-n N]`, `target stats`. Future: `target explain`. Output in formatted text
-(human); JSON output planned.
+Thin CLI wrapper using click. Commands: `target index [--embed]`, `target index-stdin`, `target
+query [--top-n N] [--mode hybrid|lex|sem] [--json-output]`, `target embed`, `target stats`.
+Future: `target explain`. Query mode controls search method: `hybrid` (default, combines BM25 +
+semantic), `lex` (keyword only, no model loading), `sem` (vector only). When no embeddings exist,
+hybrid silently falls back to lexical-only. JSON output includes per-result feature breakdown and
+reason codes.
 
 ## Data Flow
 

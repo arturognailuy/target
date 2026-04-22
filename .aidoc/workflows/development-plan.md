@@ -59,4 +59,11 @@ package structure, GitHub Actions CI for Python 3.10/3.11/3.12), `target-ingest`
 chunking, metadata inference, idempotent upserts), `target-lex` (FTS5/BM25 search), CLI (`target
 index`, `target index-stdin`, `target query`, `target stats`), and 36 tests across 4 test modules.
 
-Phase 2 (semantic search with sqlite-vec + hybrid ranking) is next.
+Phase 2 is **complete** (PR #4). Delivered: `target-sem` (all-MiniLM-L6-v2 embeddings via
+sentence-transformers, sqlite-vec cosine search, incremental embedding), `target-rank` (weighted
+merge with recency decay, trust scoring, correction stub), CLI updates (`target query --mode
+hybrid|lex|sem`, `target embed`, `target index --embed`, `--json-output` with feature breakdown
+and reason codes), graceful fallback to lex-only when semantic extras or embeddings are absent,
+and 74 tests total (38 new). All tests pass on Python 3.10–3.12.
+
+Phase 3 (correction graph) is next.
