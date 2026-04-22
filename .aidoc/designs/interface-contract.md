@@ -48,8 +48,22 @@ Each `RankedResult` includes:
 
 ## Query Modes
 
-- **Default mode:** returns current-best truth (corrections outrank originals)
-- **Audit mode** (`--audit`): includes superseded claims with full correction chain lineage
+The `--mode` flag on `target query` controls which search method is used:
+
+- **`--mode hybrid`** (default): combines BM25 lexical + semantic vector results using the weighted
+  ranking formula. If no embeddings exist, automatically falls back to lexical-only — no model
+  loading, no errors.
+- **`--mode lex`**: lexical search only (FTS5/BM25 keyword matching). Fast, no model loading.
+  Good for exact keyword queries or when semantic extras are not installed.
+- **`--mode sem`**: semantic search only (vector similarity). Requires embeddings to exist.
+  Loads the embedding model to vectorize the query, then finds similar chunks by meaning.
+
+**Indexing controls:**
+- `target index doc_key file` — indexes for lexical search only (default, fast).
+- `target index doc_key file --embed` — indexes for lexical + generates semantic embeddings.
+- `target embed` — generates embeddings for any chunks that don't have them yet.
+
+**Future:** Audit mode (`--audit`) will include superseded claims with full correction chain lineage.
 
 ## Design Principles
 

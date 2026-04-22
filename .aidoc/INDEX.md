@@ -15,7 +15,8 @@ with semantic vector similarity, plus correction-aware ranking, behind a minimal
 | Document | Domain | Status | Summary |
 |----------|--------|--------|---------|
 | [System Overview](architecture/system-overview.md) | Architecture | Active | Six-module pipeline, data flow, technology stack |
-| [Interface Contract](designs/interface-contract.md) | Designs | Active | Public API surface, design principles, invariants |
+| [Interface Contract](designs/interface-contract.md) | Designs | Active | Public API surface, query modes, design principles, invariants |
+| [Performance Plan](designs/performance-plan.md) | Designs | Draft | Model loading optimization options (ONNX, daemon, smaller models) |
 | [Testing Strategy](conventions/testing-strategy.md) | Conventions | Active | Unit, integration, and evaluation testing approach |
 | [Development Plan](workflows/development-plan.md) | Workflows | Active | Five-phase build plan with deliverables |
 | [Setup Guide](workflows/setup-guide.md) | Workflows | Active | Environment setup, running tests, quick start |
