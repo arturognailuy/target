@@ -65,8 +65,8 @@ model (all-MiniLM-L6-v2) for integration tests.
 
 Phase 1 delivered 36 tests across 4 modules: `test_db.py` (database layer), `test_ingest.py`
 (chunking, metadata, upserts), `test_lex.py` (FTS5/BM25 search, ranking), `test_cli.py`
-(CLI commands and output). Phase 2 added 38 tests across 4 new modules: `test_sem.py` (embedding
-storage, cosine retrieval, mock embeddings), `test_rank.py` (weighted merge, weight sensitivity,
-recency decay, determinism), `test_query_modes.py` (hybrid/lex/sem mode switching, fallback
-behavior), `test_integration.py` (end-to-end index → embed → query pipeline). Total: 74 tests,
+(CLI commands and output). Phase 2 added 38 tests across 2 new modules: `test_sem.py` (embedding
+storage, cosine retrieval, mock embeddings) and `test_rank.py` (weighted merge, weight sensitivity,
+recency decay, determinism). Query mode switching and integration tests are distributed within
+existing test modules (`test_cli.py`, `test_sem.py`). Total: 74 tests,
 all passing on Python 3.10–3.12.

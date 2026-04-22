@@ -46,9 +46,9 @@ Embedding is incremental — only un-embedded chunks are processed on each run. 
 embeds it, and returns chunks ranked by cosine similarity. Semantic extras are optional (`pip
 install target-search[semantic]`); the system gracefully degrades to lexical-only when absent.
 
-### target-correct
-Maintains a directed correction graph ("doc A corrects doc B"). Provides correction score
-modifiers for ranked results — boosting correctors, demoting corrected documents. Propagates
+### target-correct (Phase 3 — not yet implemented)
+Will maintain a directed correction graph ("doc A corrects doc B"). Will provide correction score
+modifiers for ranked results — boosting correctors, demoting corrected documents. Will propagate
 correction chains (A corrects B, B corrects C → A dominates C).
 
 ### target-rank
@@ -58,8 +58,8 @@ L=lexical, R=recency (exponential decay), C=correction, T=trust. Weights are con
 `RankWeights` dataclass; zeroing a weight disables that provider. Correction weight is stubbed
 at 0.0 pending Phase 3. Produces deterministic output for the same corpus, query, and weights.
 
-### target-explain
-Generates citations and evidence for ranked results. Each result gets traceable evidence pointers,
+### target-explain (Phase 4 — not yet implemented)
+Will generate citations and evidence for ranked results. Each result will get traceable evidence pointers,
 reason codes (e.g., `SEM_MATCH`, `LEX_MATCH`, `CORRECTED`), and human-readable citation strings.
 
 ### target-cli
