@@ -54,4 +54,4 @@ weeks 1–2 for a working retriever, week 3 for correction logic, week 4+ for ev
 
 ## Current Status
 
-Phase 1 is next. PR #1 (this documentation) is the prerequisite.
+Phase 1 is in progress (PR #2). Includes project scaffold, target-ingest, target-lex, CLI, CI, and tests.

@@ -10,11 +10,24 @@ A general-purpose document search and ranking system. Given a collection of docu
 - **Simple interface:** the only concepts a consumer needs are *doc key* and *doc content*
 - **General purpose:** any system that produces `(key, text)` pairs can use Target
 
+## Quick Start
+
+```bash
+pip install -e ".[dev]"
+
+# Index a document
+target index "doc:readme" README.md
+
+# Query
+target query "search ranking"
+
+# Run tests
+pytest -v
+```
+
 ## Status
 
-🚧 **Under active development** — not yet functional.
-
-See [.aidoc/INDEX.md](.aidoc/INDEX.md) for full architecture, design, testing strategy, and development plan.
+Phase 1: Foundation (ingest + lexical search + CLI). See [.aidoc/INDEX.md](.aidoc/INDEX.md) for full documentation.
 
 ## License
 

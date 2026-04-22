@@ -18,6 +18,7 @@ with semantic vector similarity, plus correction-aware ranking, behind a minimal
 | [Interface Contract](designs/interface-contract.md) | Designs | Active | Public API surface, design principles, invariants |
 | [Testing Strategy](conventions/testing-strategy.md) | Conventions | Active | Unit, integration, and evaluation testing approach |
 | [Development Plan](workflows/development-plan.md) | Workflows | Active | Five-phase build plan with deliverables |
+| [Setup Guide](workflows/setup-guide.md) | Workflows | Active | Environment setup, running tests, quick start |
 
 ## Reading Chains
 
@@ -25,4 +26,4 @@ with semantic vector similarity, plus correction-aware ranking, behind a minimal
 
 **Architecture deep-dive:** System Overview → Interface Contract
 
-**Starting development:** Development Plan → Testing Strategy → System Overview
+**Starting development:** Setup Guide → Development Plan → Testing Strategy → System Overview
