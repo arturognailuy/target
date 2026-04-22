@@ -54,4 +54,9 @@ weeks 1–2 for a working retriever, week 3 for correction logic, week 4+ for ev
 
 ## Current Status
 
-Phase 1 is in progress (PR #2). Includes project scaffold, target-ingest, target-lex, CLI, CI, and tests.
+Phase 1 is **complete** (PR #2, merged 2026-04-22). Delivered: project scaffold (`pyproject.toml`,
+package structure, GitHub Actions CI for Python 3.10/3.11/3.12), `target-ingest` (paragraph-aware
+chunking, metadata inference, idempotent upserts), `target-lex` (FTS5/BM25 search), CLI (`target
+index`, `target index-stdin`, `target query`, `target stats`), and 36 tests across 4 test modules.
+
+Phase 2 (semantic search with sqlite-vec + hybrid ranking) is next.

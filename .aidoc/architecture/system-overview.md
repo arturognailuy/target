@@ -60,8 +60,9 @@ Generates citations and evidence for ranked results. Each result gets traceable 
 reason codes (e.g., `SEM_MATCH`, `LEX_MATCH`, `CORRECTED`), and human-readable citation strings.
 
 ### target-cli
-Thin CLI wrapper (argparse or click). Commands: `target index`, `target query [--top-n N]`,
-`target explain`. Output in JSON (machine) or formatted text (human).
+Thin CLI wrapper using click. Commands implemented so far: `target index`, `target index-stdin`,
+`target query [--top-n N]`, `target stats`. Future: `target explain`. Output in formatted text
+(human); JSON output planned.
 
 ## Data Flow
 
@@ -81,4 +82,4 @@ target-explain (citations) → CLI output.
 | Vector search | sqlite-vec | First-class Python bindings, same SQLite file |
 | Embeddings | all-MiniLM-L6-v2 (default) | Small, fast, good general text quality |
 | Testing | pytest | Standard; fixtures for known-answer evaluation |
-| CLI | argparse or click | Thin wrapper, not the focus |
+| CLI | click | Thin wrapper, not the focus |
