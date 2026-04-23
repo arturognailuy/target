@@ -1,15 +1,23 @@
 ---
-title: Correction Graph Design
-status: current
-phase: 3
-related:
-  - ../architecture/system-overview.md
-  - interface-contract.md
+domain: Designs
+status: Active
+entry_points:
+  - src/target_search/correct.py
+dependencies:
+  - .aidoc/architecture/system-overview.md
+  - .aidoc/designs/interface-contract.md
 ---
 
 # Correction Graph Design
 
-> **TL;DR:** A directed acyclic graph (DAG) where edges represent "document A corrects/supersedes document B." Scores propagate transitively to boost correctors and penalize corrected documents in ranking. Cycle detection enforces DAG invariants.
+A directed acyclic graph (DAG) where edges represent "document A corrects/supersedes document B." Scores propagate transitively to boost correctors and penalize corrected documents in ranking. Cycle detection enforces DAG invariants.
+
+## Related Docs
+
+| Document | Relationship |
+|----------|-------------|
+| [System Overview](../architecture/system-overview.md) | Architecture context for the correction module |
+| [Interface Contract](interface-contract.md) | Public API surface including correction commands |
 
 ## Why a Graph
 
