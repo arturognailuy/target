@@ -63,7 +63,18 @@ The `--mode` flag on `target query` controls which search method is used:
 - `target index doc_key file --embed` — indexes for lexical + generates semantic embeddings.
 - `target embed` — generates embeddings for any chunks that don't have them yet.
 
-**Future:** Audit mode (`--audit`) will include superseded claims with full correction chain lineage.
+**Audit mode:** `target query "text" --audit` includes correction chain info in results —
+showing which documents have been corrected and by what, with full transitive lineage.
+
+## Correction Commands
+
+- `target correct <corrector_key> <corrected_key>` — register that corrector supersedes corrected
+- `target uncorrect <corrector_key> <corrected_key>` — remove a correction edge
+- `target corrections` — list all correction edges
+- `target corrections --doc-key <key>` — show full correction chain for a document
+
+Corrections affect ranking: corrector documents are boosted, corrected documents are penalized.
+Transitive chains propagate (A corrects B, B corrects C → A dominates C).
 
 ## Design Principles
 

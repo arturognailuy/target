@@ -68,5 +68,11 @@ Phase 1 delivered 36 tests across 4 modules: `test_db.py` (database layer), `tes
 (CLI commands and output). Phase 2 added 38 tests across 2 new modules: `test_sem.py` (embedding
 storage, cosine retrieval, mock embeddings) and `test_rank.py` (weighted merge, weight sensitivity,
 recency decay, determinism). Query mode switching and integration tests are distributed within
-existing test modules (`test_cli.py`, `test_sem.py`). Total: 74 tests,
-all passing on Python 3.10–3.12.
+existing test modules (`test_cli.py`, `test_sem.py`).
+
+Phase 3 added `test_correct.py` with 28 tests covering: edge CRUD (add, remove, list, idempotent
+updates), validation (self-correction rejection, missing doc_key rejection), cycle detection
+(direct and transitive), correction scores (direct, chained, confidence-weighted, clamped range,
+empty input), correction chains (head/middle/tail of chain, edges included), and schema migration
+(v1 → v2). Updated `test_rank.py` to explicitly set correction weight to 0 when testing
+zero-weight behavior. Total: 102 tests, all passing on Python 3.10–3.12.

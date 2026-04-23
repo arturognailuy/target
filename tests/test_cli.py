@@ -56,3 +56,28 @@ class TestCLI:
         result = runner.invoke(main, ["--db", db, "query", "nonexistent"])
         assert result.exit_code == 0
         assert "No results" in result.output
+
+    def test_lex_mode_correction_ranking(self, tmp_path):
+        """Corrector doc should rank above corrected doc even in lex-only mode."""
+        runner = CliRunner()
+        db = str(tmp_path / "test.db")
+        v1 = tmp_path / "v1.txt"
+        v1.write_text("We lost the game.")
+        v2 = tmp_path / "v2.txt"
+        v2.write_text("No. Actually, we won the game.")
+
+        runner.invoke(main, ["--db", db, "index", "doc:v1", str(v1)])
+        runner.invoke(main, ["--db", db, "index", "doc:v2", str(v2)])
+        runner.invoke(main, ["--db", db, "correct", "doc:v2", "doc:v1", "--reason", "Updated"])
+
+        result = runner.invoke(main, ["--db", db, "query", "game", "--json-output"])
+        assert result.exit_code == 0
+        import json
+        data = json.loads(result.output)
+        assert len(data) == 2
+        # Corrector (doc:v2) should rank first
+        assert data[0]["doc_key"] == "doc:v2"
+        assert data[1]["doc_key"] == "doc:v1"
+        # Both should have correction features
+        assert data[0]["features"]["C"] > 0
+        assert data[1]["features"]["C"] < 0

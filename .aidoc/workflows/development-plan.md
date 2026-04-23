@@ -39,6 +39,7 @@ weeks 1–2 for a working retriever, week 3 for correction logic, week 4+ for ev
 - target-correct: correction graph and score modifiers
 - Integration with target-rank
 - Correction propagation tests
+- CLI: `target correct`, `target uncorrect`, `target corrections`, `--audit` flag
 
 ## Phase 4: Explainability
 
@@ -66,4 +67,11 @@ hybrid|lex|sem`, `target embed`, `target index --embed`, `--json-output` with fe
 and reason codes), graceful fallback to lex-only when semantic extras or embeddings are absent,
 and 74 tests total (38 new). All tests pass on Python 3.10–3.12.
 
-Phase 3 (correction graph) is next.
+Phase 3 is **complete** (PR #5). Delivered: `target-correct` (directed correction graph with
+cycle detection, self-correction prevention, transitive propagation, confidence-weighted scoring),
+integration with `target-rank` (correction scores as ranking feature, C normalized from [-1,1]
+to [0,1]), CLI commands (`target correct`, `target uncorrect`, `target corrections [--doc-key]`,
+`target query --audit`), schema migration (v1→v2 with correction_edges table), doc audit, and
+102 tests total (28 new). All tests pass on Python 3.10–3.12.
+
+Phase 4 (explainability) is next.

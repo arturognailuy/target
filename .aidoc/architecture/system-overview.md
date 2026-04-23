@@ -46,17 +46,27 @@ Embedding is incremental — only un-embedded chunks are processed on each run. 
 embeds it, and returns chunks ranked by cosine similarity. Semantic extras are optional (`pip
 install target-search[semantic]`); the system gracefully degrades to lexical-only when absent.
 
-### target-correct (Phase 3 — not yet implemented)
-Will maintain a directed correction graph ("doc A corrects doc B"). Will provide correction score
-modifiers for ranked results — boosting correctors, demoting corrected documents. Will propagate
-correction chains (A corrects B, B corrects C → A dominates C).
+### target-correct
+Maintains a directed correction graph where edges represent "document A corrects/supersedes
+document B." Provides:
+- **Edge management:** `add_correction()`, `remove_correction()`, `list_corrections()` with
+  cycle detection and self-correction prevention.
+- **Score modifiers:** `correction_scores()` computes per-doc-key scores in [-1, 1] — positive
+  for correctors (boosted), negative for corrected docs (penalized). Weighted by edge confidence.
+- **Transitive propagation:** if A corrects B and B corrects C, A dominates C. Scores accumulate
+  across chains with diminishing weight (+0.5 direct, +0.25 transitive).
+- **Audit support:** `get_correction_chain()` returns full transitive correctors, corrected docs,
+  and all edges for a document — used by CLI `--audit` mode.
 
 ### target-rank
 Weighted merge layer. Combines scored candidate sets from lex, sem, and correct into a final
 ranked list. Scoring formula: `score = w_s·S + w_l·L + w_r·R + w_c·C + w_t·T` where S=semantic,
-L=lexical, R=recency (exponential decay), C=correction, T=trust. Weights are configurable via
-`RankWeights` dataclass; zeroing a weight disables that provider. Correction weight is stubbed
-at 0.0 pending Phase 3. Produces deterministic output for the same corpus, query, and weights.
+L=lexical, R=recency (exponential decay), C=correction, T=trust. Default weights:
+semantic=0.35, lexical=0.25, recency=0.15, correction=0.10, trust=0.15. Correction scores are
+normalized from [-1, 1] to [0, 1] before applying weight. Weights are configurable via
+`RankWeights` dataclass; zeroing a weight disables that provider. Produces deterministic output
+for the same corpus, query, and weights. Accepts optional `conn` parameter for correction score
+lookup.
 
 ### target-explain (Phase 4 — not yet implemented)
 Will generate citations and evidence for ranked results. Each result will get traceable evidence pointers,
@@ -64,19 +74,22 @@ reason codes (e.g., `SEM_MATCH`, `LEX_MATCH`, `CORRECTED`), and human-readable c
 
 ### target-cli
 Thin CLI wrapper using click. Commands: `target index [--embed]`, `target index-stdin`, `target
-query [--top-n N] [--mode hybrid|lex|sem] [--json-output]`, `target embed`, `target stats`.
-Future: `target explain`. Query mode controls search method: `hybrid` (default, combines BM25 +
-semantic), `lex` (keyword only, no model loading), `sem` (vector only). When no embeddings exist,
-hybrid silently falls back to lexical-only. JSON output includes per-result feature breakdown and
-reason codes.
+query [--top-n N] [--mode hybrid|lex|sem] [--json-output] [--audit]`, `target embed`,
+`target stats`, `target correct`, `target uncorrect`, `target corrections [--doc-key KEY]`.
+Query mode controls search method: `hybrid` (default, combines BM25 + semantic + corrections),
+`lex` (keyword only, no model loading), `sem` (vector only). When no embeddings exist,
+hybrid silently falls back to lexical-only. `--audit` includes correction chain info in results.
+JSON output includes per-result feature breakdown and reason codes including `CORRECTOR` and
+`CORRECTED`.
 
 ## Data Flow
 
-Indexing path: Sources → target-ingest → (target-lex + target-sem + target-correct) in parallel.
+Indexing path: Sources → target-ingest → (target-lex + target-sem) in parallel.
+Correction path: `target correct` → target-correct (stores edges in correction_edges table).
 
 Query path: CLI → target-lex (BM25 candidates) + target-sem (vector candidates) in parallel →
-union + dedupe → target-correct (correction features) → target-rank (weighted merge) →
-target-explain (citations) → CLI output.
+union + dedupe → target-correct (correction scores per doc_key) → target-rank (weighted merge) →
+target-explain (citations, Phase 4) → CLI output.
 
 ## Technology Stack
 
