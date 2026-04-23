@@ -5,7 +5,7 @@ from __future__ import annotations
 import sqlite3
 from pathlib import Path
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA_SQL = """
 CREATE TABLE IF NOT EXISTS records (
@@ -48,9 +48,39 @@ CREATE TRIGGER IF NOT EXISTS chunk_fts_update AFTER UPDATE ON record_chunks BEGI
     INSERT INTO chunk_fts(chunk_fts, rowid, chunk_text) VALUES (new.id, new.chunk_text);
 END;
 
+CREATE TABLE IF NOT EXISTS correction_edges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    corrector_doc_key TEXT NOT NULL,
+    corrected_doc_key TEXT NOT NULL,
+    edge_type TEXT NOT NULL DEFAULT 'supersedes',
+    confidence REAL NOT NULL DEFAULT 1.0,
+    reason TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(corrector_doc_key, corrected_doc_key)
+);
+
+CREATE INDEX IF NOT EXISTS idx_correction_corrector ON correction_edges(corrector_doc_key);
+CREATE INDEX IF NOT EXISTS idx_correction_corrected ON correction_edges(corrected_doc_key);
+
 CREATE TABLE IF NOT EXISTS schema_version (
     version INTEGER NOT NULL
 );
+"""
+
+MIGRATION_V2 = """
+CREATE TABLE IF NOT EXISTS correction_edges (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    corrector_doc_key TEXT NOT NULL,
+    corrected_doc_key TEXT NOT NULL,
+    edge_type TEXT NOT NULL DEFAULT 'supersedes',
+    confidence REAL NOT NULL DEFAULT 1.0,
+    reason TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    UNIQUE(corrector_doc_key, corrected_doc_key)
+);
+
+CREATE INDEX IF NOT EXISTS idx_correction_corrector ON correction_edges(corrector_doc_key);
+CREATE INDEX IF NOT EXISTS idx_correction_corrected ON correction_edges(corrected_doc_key);
 """
 
 
@@ -64,10 +94,15 @@ def open_db(path: str | Path) -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys=ON")
     conn.executescript(SCHEMA_SQL)
 
-    # Track schema version
+    # Track schema version and run migrations
     row = conn.execute("SELECT version FROM schema_version LIMIT 1").fetchone()
     if row is None:
         conn.execute("INSERT INTO schema_version (version) VALUES (?)", (SCHEMA_VERSION,))
+        conn.commit()
+    elif row["version"] < SCHEMA_VERSION:
+        if row["version"] < 2:
+            conn.executescript(MIGRATION_V2)
+        conn.execute("UPDATE schema_version SET version = ?", (SCHEMA_VERSION,))
         conn.commit()
 
     return conn

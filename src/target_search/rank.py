@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+import sqlite3
 from dataclasses import dataclass, field
 from datetime import date, datetime
 
@@ -11,10 +12,10 @@ from datetime import date, datetime
 class RankWeights:
     """Configurable weights for the ranking formula."""
 
-    semantic: float = 0.4
-    lexical: float = 0.3
+    semantic: float = 0.35
+    lexical: float = 0.25
     recency: float = 0.15
-    correction: float = 0.0  # Phase 3
+    correction: float = 0.10
     trust: float = 0.15
 
 
@@ -25,7 +26,7 @@ class FeatureBreakdown:
     S: float = 0.0  # semantic
     L: float = 0.0  # lexical
     R: float = 0.0  # recency
-    C: float = 0.0  # correction (Phase 3)
+    C: float = 0.0  # correction
     T: float = 0.0  # trust
 
     def as_dict(self) -> dict[str, float]:
@@ -93,6 +94,7 @@ def rank(
     sem_results: list | None = None,
     weights: RankWeights | None = None,
     reference_date: date | None = None,
+    conn: sqlite3.Connection | None = None,
 ) -> list[RankedResult]:
     """Merge lexical and semantic results into a single ranked list.
 
@@ -104,6 +106,8 @@ def rank(
         sem_results: Results from search_sem (SemResult objects).
         weights: Scoring weights. Defaults to RankWeights().
         reference_date: Reference date for recency calculation.
+        conn: Database connection for correction score lookup. If None,
+              correction scores default to 0.0.
 
     Returns:
         Sorted list of RankedResult (highest score first).
@@ -151,6 +155,14 @@ def rank(
     if not candidates:
         return []
 
+    # Get correction scores if conn is available and weight is non-zero
+    correction_scores_map: dict[str, float] = {}
+    if conn is not None and weights.correction > 0:
+        from target_search.correct import correction_scores
+
+        unique_doc_keys = list({c["doc_key"] for c in candidates.values()})
+        correction_scores_map = correction_scores(conn, unique_doc_keys)
+
     # Normalize raw scores across all candidates
     chunk_ids = list(candidates.keys())
     bm25_raw = [candidates[cid]["bm25_raw"] for cid in chunk_ids]
@@ -166,14 +178,17 @@ def rank(
         S = cosine_norm[i]
         L = bm25_norm[i]
         R = _recency_score(c["created_at"], reference_date)
-        C = 0.0  # Phase 3
+        C = correction_scores_map.get(c["doc_key"], 0.0)
         T = _trust_score(c["trust_level"])
+
+        # Normalize C from [-1, 1] to [0, 1] for weighted sum
+        C_normalized = (C + 1.0) / 2.0
 
         final_score = (
             weights.semantic * S
             + weights.lexical * L
             + weights.recency * R
-            + weights.correction * C
+            + weights.correction * C_normalized
             + weights.trust * T
         )
 
@@ -185,6 +200,10 @@ def rank(
             reason_codes.append("LEX_MATCH")
         if R > 0.7:
             reason_codes.append("RECENT")
+        if C > 0.0:
+            reason_codes.append("CORRECTOR")
+        if C < 0.0:
+            reason_codes.append("CORRECTED")
         if T >= 0.8:
             reason_codes.append("HIGH_TRUST")
 

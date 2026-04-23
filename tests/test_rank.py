@@ -161,7 +161,7 @@ class TestRank:
         # With semantic weight=0, the S feature still gets computed
         # but doesn't affect the final score
         lex = [MockLexResult(chunk_id=1, bm25_score=5.0)]
-        weights = RankWeights(semantic=0.0, lexical=1.0, recency=0.0, trust=0.0)
+        weights = RankWeights(semantic=0.0, lexical=1.0, recency=0.0, correction=0.0, trust=0.0)
         results = rank(lex_results=lex, weights=weights)
         # Final score should only reflect lexical
         assert results[0].final_score == pytest.approx(results[0].features.L * 1.0)
