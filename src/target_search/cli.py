@@ -293,59 +293,16 @@ def query_cmd(
                 raise SystemExit(1)
             mode = "lex"
 
-    if mode == "lex":
-        # Lex-only: return BM25 results directly
-        results = search_lex(conn, text, top_n)
-
-        # Get correction info if audit mode
-        audit_info = {}
-        if audit:
-            from target_search.correct import get_correction_chain
-            for r in results:
-                if r.doc_key not in audit_info:
-                    audit_info[r.doc_key] = get_correction_chain(conn, r.doc_key)
-
-        conn.close()
-
-        if json_out:
-            output = [
-                {
-                    "chunk_id": r.chunk_id,
-                    "doc_key": r.doc_key,
-                    "chunk_index": r.chunk_index,
-                    "bm25_score": r.bm25_score,
-                    "source_type": r.source_type,
-                    "trust_level": r.trust_level,
-                    "text": r.chunk_text,
-                    **({"correction_chain": audit_info.get(r.doc_key)} if audit else {}),
-                }
-                for r in results
-            ]
-            click.echo(json.dumps(output, indent=2))
-        else:
-            if not results:
-                click.echo("No results found.")
-                return
-            for i, r in enumerate(results, 1):
-                click.echo(f"\n--- Result {i} (BM25: {r.bm25_score:.4f}) ---")
-                click.echo(f"Key: {r.doc_key} | Chunk: {r.chunk_index}")
-                click.echo(r.chunk_text[:200] + ("..." if len(r.chunk_text) > 200 else ""))
-                if audit and r.doc_key in audit_info:
-                    chain = audit_info[r.doc_key]
-                    if chain["correctors"]:
-                        click.echo(f"  ⚠ Corrected by: {', '.join(chain['correctors'])}")
-                    if chain["corrected"]:
-                        click.echo(f"  ✓ Corrects: {', '.join(chain['corrected'])}")
-        return
-
     from target_search.rank import RankWeights, rank
 
     # Get candidates from both sources
     lex_results = search_lex(conn, text, top_n * 2) if mode != "sem" else None
     sem_results = sem_mod.search_sem(conn, text, top_n * 2) if mode != "lex" else None
 
-    # Adjust weights for single-mode
-    if mode == "sem":
+    # Adjust weights based on mode
+    if mode == "lex":
+        weights = RankWeights(semantic=0.0, lexical=0.20, recency=0.15, correction=0.50, trust=0.15)
+    elif mode == "sem":
         weights = RankWeights(semantic=0.6, lexical=0.0, recency=0.15, correction=0.10, trust=0.15)
     else:
         weights = RankWeights()  # defaults
