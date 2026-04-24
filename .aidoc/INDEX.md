@@ -8,7 +8,7 @@ dependencies: []
 # Target — Documentation Index
 
 Target is a general-purpose document search and ranking system that combines BM25 lexical search
-with semantic vector similarity, plus correction-aware ranking, behind a minimal `index()`/`query()` interface.
+with semantic vector similarity, plus correction-aware ranking and explainable results, behind a minimal `index()`/`query()` interface.
 
 ## Document Inventory
 
