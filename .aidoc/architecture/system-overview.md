@@ -68,13 +68,18 @@ normalized from [-1, 1] to [0, 1] before applying weight. Weights are configurab
 for the same corpus, query, and weights. Accepts optional `conn` parameter for correction score
 lookup.
 
-### target-explain (Phase 4 — not yet implemented)
-Will generate citations and evidence for ranked results. Each result will get traceable evidence pointers,
-reason codes (e.g., `SEM_MATCH`, `LEX_MATCH`, `CORRECTED`), and human-readable citation strings.
+### target-explain
+Generates citations and evidence for ranked results. Each result gets an `Explanation` containing:
+traceable evidence pointers (chunk/record IDs), human-readable citation strings, reason code
+descriptions, dominant contributing factors, and correction chain evidence when applicable.
+Explanations are serializable to JSON via `as_dict()` and formattable as human-readable text
+via `format_explanation()`. Operates on `RankedResult` objects from target-rank — no direct
+database queries except optional correction chain lookup.
 
 ### target-cli
 Thin CLI wrapper using click. Commands: `target index [--embed]`, `target index-stdin`, `target
-query [--top-n N] [--mode hybrid|lex|sem] [--json-output] [--audit]`, `target embed`,
+query [--top-n N] [--mode hybrid|lex|sem] [--json-output] [--audit]`, `target explain [--top-n N]
+[--mode hybrid|lex|sem] [--json-output] [--verbose]`, `target embed`,
 `target stats`, `target correct`, `target uncorrect`, `target corrections [--doc-key KEY]`.
 Query mode controls search method: `hybrid` (default, combines BM25 + semantic + corrections),
 `lex` (keyword only, no model loading), `sem` (vector only). When no embeddings exist,
@@ -89,7 +94,7 @@ Correction path: `target correct` → target-correct (stores edges in correction
 
 Query path: CLI → target-lex (BM25 candidates) + target-sem (vector candidates) in parallel →
 union + dedupe → target-correct (correction scores per doc_key) → target-rank (weighted merge) →
-target-explain (citations, Phase 4) → CLI output.
+target-explain (citations + evidence + dominant factors) → CLI output.
 
 ## Technology Stack
 

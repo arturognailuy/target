@@ -74,4 +74,10 @@ to [0,1]), CLI commands (`target correct`, `target uncorrect`, `target correctio
 `target query --audit`), schema migration (v1→v2 with correction_edges table), doc audit, and
 102 tests total (28 new). All tests pass on Python 3.10–3.12.
 
-Phase 4 (explainability) is next.
+Phase 4 (explainability) is **complete** (PR #6). Delivered: `target-explain` module (citation
+generation, evidence pointers, dominant factor analysis, correction chain evidence, human-readable
+formatting with verbose mode), CLI `target explain` command with `--json-output` and `--verbose`
+flags, and 126 tests total (24 new in test_explain.py including integration tests with
+known-answer corpus). All tests pass on Python 3.10–3.12.
+
+Phase 5 (evaluation and tuning) is next.
