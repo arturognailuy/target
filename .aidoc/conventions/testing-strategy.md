@@ -76,3 +76,11 @@ updates), validation (self-correction rejection, missing doc_key rejection), cyc
 empty input), correction chains (head/middle/tail of chain, edges included), and schema migration
 (v1 → v2). Updated `test_rank.py` to explicitly set correction weight to 0 when testing
 zero-weight behavior. Total: 102 tests, all passing on Python 3.10–3.12.
+
+Phase 4 added `test_explain.py` with 24 tests covering: citation generation (basic, truncation,
+newlines, empty reason codes), dominant factor analysis (top-N, negligible filtering, all-zero),
+explain result (basic, evidence pointers, no-conn handling, serialization, unknown reason codes),
+explain results (multiple, empty), format explanation (basic, verbose mode, correction evidence),
+and database integration (correction evidence from DB, no corrections, end-to-end
+index→correct→query→explain pipeline). CLI `explain` command tested via `test_cli.py`.
+Total: 126 tests, all passing on Python 3.10–3.12.

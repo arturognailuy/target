@@ -364,6 +364,81 @@ def query_cmd(
                     click.echo(f"  ✓ Corrects: {', '.join(chain['corrected'])}")
 
 
+@main.command("explain")
+@click.argument("text")
+@click.option("--top-n", type=int, default=5, help="Number of results to explain.")
+@click.option("--mode", type=click.Choice(["hybrid", "lex", "sem"]), default="hybrid",
+              help="Search mode.")
+@click.option("--json-output", "json_out", is_flag=True, help="Output as JSON.")
+@click.option("--verbose", "-v", is_flag=True, help="Include full feature breakdown.")
+@click.pass_context
+def explain_cmd(
+    ctx: click.Context,
+    text: str,
+    top_n: int,
+    mode: str,
+    json_out: bool,
+    verbose: bool,
+) -> None:
+    """Explain why results rank the way they do for a query."""
+    from target_search.explain import explain_results, format_explanation
+    from target_search.rank import RankWeights, rank
+
+    conn = open_db(ctx.obj["db_path"])
+
+    sem_mod = _try_import_sem()
+    has_semantic = sem_mod is not None
+
+    if mode in ("hybrid", "sem") and not has_semantic:
+        if mode == "sem":
+            click.echo("Error: semantic extras not installed.")
+            raise SystemExit(1)
+        mode = "lex"
+
+    if mode in ("hybrid", "sem") and has_semantic:
+        try:
+            embed_count = conn.execute("SELECT COUNT(*) FROM chunk_embeddings").fetchone()[0]
+        except Exception:
+            embed_count = 0
+        if embed_count == 0:
+            if mode == "sem":
+                click.echo("No embeddings found. Run 'target embed' first.")
+                raise SystemExit(1)
+            mode = "lex"
+
+    lex_results = search_lex(conn, text, top_n * 2) if mode != "sem" else None
+    sem_results = sem_mod.search_sem(conn, text, top_n * 2) if mode != "lex" else None
+
+    if mode == "lex":
+        weights = RankWeights(semantic=0.0, lexical=0.20, recency=0.15, correction=0.50, trust=0.15)
+    elif mode == "sem":
+        weights = RankWeights(semantic=0.6, lexical=0.0, recency=0.15, correction=0.10, trust=0.15)
+    else:
+        weights = RankWeights()
+
+    ranked = rank(
+        lex_results=lex_results,
+        sem_results=sem_results,
+        weights=weights,
+        conn=conn,
+    )
+    ranked = ranked[:top_n]
+
+    explanations = explain_results(ranked, conn=conn)
+    conn.close()
+
+    if json_out:
+        click.echo(json.dumps([e.as_dict() for e in explanations], indent=2))
+    else:
+        if not explanations:
+            click.echo("No results found.")
+            return
+        for i, expl in enumerate(explanations, 1):
+            codes = ", ".join(expl.reason_codes) if expl.reason_codes else "none"
+            click.echo(f"\n=== Result {i} (score: {expl.final_score:.4f} | {codes}) ===")
+            click.echo(format_explanation(expl, verbose=verbose))
+
+
 @main.command("stats")
 @click.pass_context
 def stats_cmd(ctx: click.Context) -> None:

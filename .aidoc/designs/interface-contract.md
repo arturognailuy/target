@@ -76,6 +76,17 @@ showing which documents have been corrected and by what, with full transitive li
 Corrections affect ranking: corrector documents are boosted, corrected documents are penalized.
 Transitive chains propagate (A corrects B, B corrects C → A dominates C).
 
+## Explain Command
+
+- `target explain "query text"` — run a query and explain why each result ranks where it does
+- `target explain "text" --verbose` — include full feature breakdown (S/L/R/C/T scores)
+- `target explain "text" --json-output` — structured JSON with citations, evidence, dominant factors
+- `target explain "text" --mode lex|sem|hybrid` — control search mode (same as query)
+- `target explain "text" --top-n N` — number of results to explain (default 5)
+
+Each result explanation includes: human-readable citation, dominant contributing factors,
+reason code descriptions, evidence pointers (chunk/record IDs), and correction chain evidence.
+
 ## Design Principles
 
 1. **Minimal interface.** Consumers see only `index()` and `query()`.
