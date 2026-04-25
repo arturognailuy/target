@@ -34,6 +34,9 @@ target = "target_search.cli:main"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
+markers = [
+    "slow: marks tests that use real embedding models or otherwise run slowly",
+]
 
 [tool.ruff]
 target-version = "py310"

@@ -9,8 +9,9 @@ dependencies:
 
 # Development Plan
 
-Target is built in five phases, each delivering a usable increment. Estimated timeline:
-weeks 1–2 for a working retriever, week 3 for correction logic, week 4+ for evaluation and tuning.
+Target is built in six phases, each delivering a usable increment. Estimated timeline:
+weeks 1–2 for a working retriever, week 3 for correction logic, week 4 for explainability,
+week 5 for end-to-end testing, and week 6+ for evaluation and tuning.
 
 ## Related Docs
 
@@ -47,7 +48,16 @@ weeks 1–2 for a working retriever, week 3 for correction logic, week 4+ for ev
 - CLI: `explain` command
 - Integration tests with known-answer corpus
 
-## Phase 5: Evaluation and Tuning
+## Phase 5: End-to-End Tests
+
+- Sci-fi themed fixture corpus (15–20 documents across 4 topic clusters)
+- Full pipeline tests: ingest → query → assert in lex, sem, hybrid modes
+- Correction regression tests (corrector always outranks corrected)
+- Trust, recency, and explain output validation
+- Edge cases: empty corpus, CJK content, re-index idempotency
+- Known-answer pairs with must-outrank assertions
+
+## Phase 6: Evaluation and Tuning
 
 - Regression harness (snapshot-based)
 - Weight tuning experiments
@@ -80,4 +90,10 @@ formatting with verbose mode), CLI `target explain` command with `--json-output`
 flags, and 126 tests total (24 new in test_explain.py including integration tests with
 known-answer corpus). All tests pass on Python 3.10–3.12.
 
-Phase 5 (evaluation and tuning) is next.
+Phase 5 (E2E tests) is **complete** (PR #7). Delivered: sci-fi fixture corpus
+(`tests/fixtures/e2e/`, 17 documents + manifest), full pipeline E2E suite
+(`tests/test_e2e.py`) covering topical retrieval, correction outrank assertions, trust/recency
+weighting, explain output validation, edge cases (empty/single-doc/re-index/CJK), and semantic+
+hybrid smoke coverage under `@pytest.mark.slow`.
+
+Total test suite is now 140 passing tests. Phase 6 (evaluation and tuning) is next.

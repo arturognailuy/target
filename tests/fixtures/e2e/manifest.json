@@ -1,0 +1,208 @@
+{
+  "fixtures": [
+    {
+      "file": "robotics-01.md",
+      "doc_key": "encyclopedia:robotics:positronic-brain",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-01-15",
+      "topic": "robotics"
+    },
+    {
+      "file": "robotics-02-correction.md",
+      "doc_key": "bulletin:robotics:positronic-errata",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-03-01",
+      "topic": "robotics",
+      "corrects": "encyclopedia:robotics:positronic-brain",
+      "correction_reason": "Updated operating speed and MTBF from field data"
+    },
+    {
+      "file": "robotics-03.md",
+      "doc_key": "encyclopedia:robotics:ethics",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-02-10",
+      "topic": "robotics"
+    },
+    {
+      "file": "robotics-04-code.md",
+      "doc_key": "manual:robotics:series7-config",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-01-20",
+      "topic": "robotics"
+    },
+    {
+      "file": "space-01.md",
+      "doc_key": "encyclopedia:space:psychohistory",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-01-05",
+      "topic": "space"
+    },
+    {
+      "file": "space-02.md",
+      "doc_key": "manifest:space:prometheus",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-02-01",
+      "topic": "space"
+    },
+    {
+      "file": "space-03-correction.md",
+      "doc_key": "manifest:space:prometheus-corrected",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-03-15",
+      "topic": "space",
+      "corrects": "manifest:space:prometheus",
+      "correction_reason": "Revised passenger count and transit time after retrofit"
+    },
+    {
+      "file": "space-04.md",
+      "doc_key": "encyclopedia:space:route-alpha7",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-01-10",
+      "topic": "space"
+    },
+    {
+      "file": "space-05-correction.md",
+      "doc_key": "bulletin:space:route-beta9",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-04-01",
+      "topic": "space",
+      "corrects": "encyclopedia:space:route-alpha7",
+      "correction_reason": "New Beta-9 corridor is now the shortest route"
+    },
+    {
+      "file": "space-06-rumor.md",
+      "doc_key": "rumor:space:alpha7-gossip",
+      "source_type": "dream",
+      "trust_level": 0.3,
+      "created_at": "2026-03-20",
+      "topic": "space"
+    },
+    {
+      "file": "comedy-01.md",
+      "doc_key": "guide:comedy:improbability-drive",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-02-05",
+      "topic": "comedy"
+    },
+    {
+      "file": "comedy-02.md",
+      "doc_key": "guide:comedy:towel-requisition",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-02-10",
+      "topic": "comedy"
+    },
+    {
+      "file": "comedy-03.md",
+      "doc_key": "guide:comedy:gargleblaster",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-02-15",
+      "topic": "comedy"
+    },
+    {
+      "file": "contact-01.md",
+      "doc_key": "report:contact:xenolinguistics",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-03-01",
+      "topic": "contact"
+    },
+    {
+      "file": "contact-02.md",
+      "doc_key": "report:contact:keplerian-incident",
+      "source_type": "memory",
+      "trust_level": 1.0,
+      "created_at": "2026-03-10",
+      "topic": "contact"
+    },
+    {
+      "file": "contact-03-cjk.md",
+      "doc_key": "transmission:contact:farstar-colony",
+      "source_type": "email",
+      "trust_level": 0.8,
+      "created_at": "2026-04-05",
+      "topic": "contact"
+    },
+    {
+      "file": "contact-04-short.md",
+      "doc_key": "distress:contact:nostradamus",
+      "source_type": "email",
+      "trust_level": 0.5,
+      "created_at": "2026-04-10",
+      "topic": "contact"
+    }
+  ],
+  "corrections": [
+    {
+      "corrector": "bulletin:robotics:positronic-errata",
+      "corrected": "encyclopedia:robotics:positronic-brain",
+      "reason": "Updated operating speed and MTBF from field data"
+    },
+    {
+      "corrector": "manifest:space:prometheus-corrected",
+      "corrected": "manifest:space:prometheus",
+      "reason": "Revised passenger count and transit time after retrofit"
+    },
+    {
+      "corrector": "bulletin:space:route-beta9",
+      "corrected": "encyclopedia:space:route-alpha7",
+      "reason": "New Beta-9 corridor is now the shortest route"
+    }
+  ],
+  "queries": [
+    {
+      "text": "positronic brain operating speed",
+      "topic": "robotics",
+      "must_outrank": [["bulletin:robotics:positronic-errata", "encyclopedia:robotics:positronic-brain"]],
+      "expected_top_keys": ["bulletin:robotics:positronic-errata", "encyclopedia:robotics:positronic-brain"]
+    },
+    {
+      "text": "colony ship passenger count prometheus",
+      "topic": "space",
+      "must_outrank": [["manifest:space:prometheus-corrected", "manifest:space:prometheus"]],
+      "expected_top_keys": ["manifest:space:prometheus-corrected", "manifest:space:prometheus"]
+    },
+    {
+      "text": "shortest hyperspace route to periphery",
+      "topic": "space",
+      "must_outrank": [["bulletin:space:route-beta9", "encyclopedia:space:route-alpha7"]],
+      "expected_top_keys": ["bulletin:space:route-beta9", "encyclopedia:space:route-alpha7"]
+    },
+    {
+      "text": "Three Laws of Robotics",
+      "topic": "robotics",
+      "expected_top_keys": ["encyclopedia:robotics:positronic-brain", "encyclopedia:robotics:ethics"]
+    },
+    {
+      "text": "improbability drive quantum",
+      "topic": "comedy",
+      "expected_top_keys": ["guide:comedy:improbability-drive"]
+    },
+    {
+      "text": "towel hitchhiker",
+      "topic": "comedy",
+      "expected_top_keys": ["guide:comedy:towel-requisition"]
+    },
+    {
+      "text": "silicon based alien life xenolinguistics",
+      "topic": "contact",
+      "expected_top_keys": ["report:contact:xenolinguistics", "report:contact:keplerian-incident"]
+    },
+    {
+      "text": "psychohistory Seldon Foundation",
+      "topic": "space",
+      "expected_top_keys": ["encyclopedia:space:psychohistory"]
+    }
+  ]
+}
