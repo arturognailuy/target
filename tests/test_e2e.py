@@ -79,11 +79,18 @@ def test_pipeline_topical_retrieval_lex(e2e_db):
         ranked = rank(
             lex_results=search_lex(conn, query, top_n=20),
             sem_results=None,
-            weights=RankWeights(semantic=0.0, lexical=0.20, recency=0.15, correction=0.50, trust=0.15),
+            weights=RankWeights(
+                semantic=0.0,
+                lexical=0.20,
+                recency=0.15,
+                correction=0.50,
+                trust=0.15,
+            ),
             conn=conn,
         )[:3]
         assert ranked, f"No results for {query}"
-        # Chunk-level retrieval can include occasional cross-topic tails; require top-2 topical purity.
+        # Chunk-level retrieval can include occasional cross-topic tails.
+        # Require top-2 topical purity.
         top_two = ranked[:2]
         assert all(r.doc_key.startswith(topic_prefix[topic]) for r in top_two)
 
@@ -296,7 +303,13 @@ def test_semantic_and_hybrid_modes_e2e(e2e_db):
         sem_ranked = rank(
             lex_results=None,
             sem_results=sem.search_sem(conn, query, top_n=10),
-            weights=RankWeights(semantic=0.6, lexical=0.0, recency=0.15, correction=0.10, trust=0.15),
+            weights=RankWeights(
+                semantic=0.6,
+                lexical=0.0,
+                recency=0.15,
+                correction=0.10,
+                trust=0.15,
+            ),
             conn=conn,
         )[:5]
         hybrid_ranked = rank(
