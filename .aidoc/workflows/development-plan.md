@@ -9,9 +9,7 @@ dependencies:
 
 # Development Plan
 
-Target is built in six phases, each delivering a usable increment. Estimated timeline:
-weeks 1–2 for a working retriever, week 3 for correction logic, week 4 for explainability,
-week 5 for end-to-end testing, and week 6+ for evaluation and tuning.
+Target is built in six phases, each delivering a usable increment.
 
 ## Related Docs
 
@@ -59,9 +57,11 @@ week 5 for end-to-end testing, and week 6+ for evaluation and tuning.
 
 ## Phase 6: Evaluation and Tuning
 
-- Regression harness (snapshot-based)
-- Weight tuning experiments
-- Performance benchmarks
+- Regression harness: snapshot-based golden-answer testing (`target eval snapshot/diff`)
+- Quality metrics: precision@k, correction recall, noise rate (`target eval report`)
+- Weight tuning: grid search over ranking formula weights (`target eval tune`)
+- Performance benchmarks: query latency, index throughput, memory usage
+- Design doc: `.aidoc/designs/evaluation-tuning.md`
 
 ## Current Status
 
