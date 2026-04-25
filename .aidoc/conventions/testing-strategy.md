@@ -83,4 +83,11 @@ explain result (basic, evidence pointers, no-conn handling, serialization, unkno
 explain results (multiple, empty), format explanation (basic, verbose mode, correction evidence),
 and database integration (correction evidence from DB, no corrections, end-to-end
 index→correct→query→explain pipeline). CLI `explain` command tested via `test_cli.py`.
-Total: 126 tests, all passing on Python 3.10–3.12.
+
+Phase 5 added `test_e2e.py` and fixture corpus `tests/fixtures/e2e/` (sci-fi themed, 17 docs +
+manifest). Coverage includes full ingest→query→rank→explain flows, correction outrank
+regressions, trust/recency assertions, edge cases (empty corpus, single-document corpus,
+re-index idempotency, CJK token retrieval), and semantic/hybrid smoke checks under
+`@pytest.mark.slow` using real embeddings when semantic extras are installed.
+
+Total: 140 tests, all passing.

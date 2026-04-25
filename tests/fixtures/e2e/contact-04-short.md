@@ -1,0 +1,1 @@
+MAYDAY. MAYDAY. This is the freighter Nostradamus. Hull breach on Deck 4. Life support failing. Coordinates: Sector 7G, Grid Reference 42-17-Omega. Any vessel in range, please respond. Crew of six, three injured. Estimated survival time: four hours standard.

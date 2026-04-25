@@ -1,6 +1,6 @@
 ---
 domain: Conventions
-status: Draft
+status: Active
 entry_points: []
 dependencies:
   - .aidoc/conventions/testing-strategy.md
