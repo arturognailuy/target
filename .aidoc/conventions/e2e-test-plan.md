@@ -21,38 +21,50 @@ in isolation) by catching integration bugs like the Phase 3 lex-only ranking byp
 | [Testing Strategy](testing-strategy.md) | Parent testing approach; E2E extends integration level |
 | [System Overview](../architecture/system-overview.md) | Pipeline being tested end-to-end |
 | [Correction Graph](../designs/correction-graph.md) | Correction logic validated by E2E tests |
-| [Development Plan](../workflows/development-plan.md) | E2E tests precede Phase 5 (evaluation) |
+| [Development Plan](../workflows/development-plan.md) | E2E tests are Phase 5; precede Phase 6 (evaluation) |
 
-## Why E2E Before Phase 5
+## Why E2E Before Evaluation (Phase 6)
 
-Phase 5 involves tuning ranking weights, chunk sizes, and candidate pool sizes. Each change risks
+Phase 6 involves tuning ranking weights, chunk sizes, and candidate pool sizes. Each change risks
 breaking existing behavior. E2E tests provide three things:
 
 1. **Regression safety net.** A "nothing broke" gate before and after each tuning iteration.
 2. **Eval harness foundation.** The fixture → index → query → assert pipeline is the scaffold
-   that Phase 5 extends with precision@k, correction recall, and noise rate metrics.
+   that Phase 6 extends with precision@k, correction recall, and noise rate metrics.
 3. **Coverage gap closure.** 126 unit/module tests exist, but no test exercises the full pipeline
    with realistic multi-document data. The Phase 3 lex-only ranking bug is the kind of issue E2E
    tests are designed to catch.
 
 ## Fixture Corpus
 
-A curated set of 15–20 documents in `tests/fixtures/e2e/`, each a short markdown file with
-controlled content. The corpus covers:
+A curated set of 15–20 original sci-fi themed documents in `tests/fixtures/e2e/`, each a short
+markdown file with controlled content. The corpus world-builds a shared universe inspired by
+Asimov and Adams (no copyrighted text — all original writing).
 
-- **Topical clusters.** 3–4 topic groups (e.g., "server config", "deployment", "database",
-  "authentication") with 4–5 documents each.
+- **Topical clusters.** 4 topic groups:
+  - *Robotics & AI ethics* — Three Laws variants, positronic brain design, robot–human
+    relationships, ethical dilemmas.
+  - *Space travel & galactic civilizations* — psychohistory, galactic empire politics,
+    hyperspace trade routes, colony administration.
+  - *Comedy sci-fi & improbability* — improbability drives, towel logistics,
+    pangalactic gargleblasters, bureaucratic aliens, absurd regulations.
+  - *First contact & alien biology* — xenolinguistics, silicon-based life, diplomatic
+    protocols, cultural misunderstandings.
 - **Known relationships.** Documents within a cluster share terms and semantics so retrieval
   results are predictable.
-- **Corrections.** At least 3 correction pairs: one document supersedes another on a specific
-  claim (e.g., port number changed, password policy updated, deployment target moved).
-- **Varying trust levels.** Documents tagged with different source types (memory, email, dream)
-  to exercise trust weighting.
-- **Edge cases.** One very short document (single sentence), one longer document (multiple
-  paragraphs / multiple chunks), one with CJK content, one with code blocks.
+- **Corrections.** At least 3 correction pairs with natural in-universe reasons:
+  - "The colony ship carries 10,000 passengers" → corrected to 12,000 (manifest error).
+  - "The Third Law of Robotics states..." → corrected with a more accurate formulation.
+  - "Hyperspace route Alpha-7 is the shortest" → corrected after new route discovery.
+- **Trust levels.** Official Galactic Encyclopedia entries (high trust) vs. spacer bar
+  rumors and unverified transmissions (low trust).
+- **Edge cases.** One very short document (single-sentence distress signal), one longer
+  document (multi-paragraph encyclopedia entry / multiple chunks), one CJK document
+  (a transmission from a distant colony in Chinese), one with code-like content
+  (robot programming directives).
 
-Each fixture file uses a naming convention: `<topic>-<sequence>.md` (e.g., `server-01.md`,
-`server-02-correction.md`).
+Each fixture file uses a naming convention: `<topic>-<sequence>.md` (e.g., `robotics-01.md`,
+`robotics-02-correction.md`, `comedy-01.md`).
 
 A manifest file `tests/fixtures/e2e/manifest.json` maps each fixture to its doc_key, source_type,
 trust_level, and any correction relationships. This is the single source of truth for test
@@ -113,9 +125,9 @@ The manifest includes a `queries` section with expected results:
 {
   "queries": [
     {
-      "text": "server port number",
-      "expected_top_3": ["server-02-correction", "server-01", "server-03"],
-      "must_outrank": [["server-02-correction", "server-01"]]
+      "text": "colony ship passenger count",
+      "expected_top_3": ["space-02-correction", "space-01", "space-03"],
+      "must_outrank": [["space-02-correction", "space-01"]]
     }
   ]
 }
@@ -138,7 +150,7 @@ tests on one Python version (3.12) and fast-only on the others.
 
 ## Success Criteria
 
-Before Phase 5 begins:
+Before Phase 6 begins:
 - All fixture-based pipeline tests pass in all three modes (lex, sem, hybrid).
 - All correction regression tests pass (corrector always outranks corrected).
 - Explain output validation passes for all top-k results.
