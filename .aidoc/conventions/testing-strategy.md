@@ -63,31 +63,13 @@ model (all-MiniLM-L6-v2) for integration tests.
 
 ## Current State
 
-Phase 1 delivered 36 tests across 4 modules: `test_db.py` (database layer), `test_ingest.py`
-(chunking, metadata, upserts), `test_lex.py` (FTS5/BM25 search, ranking), `test_cli.py`
-(CLI commands and output). Phase 2 added 38 tests across 2 new modules: `test_sem.py` (embedding
-storage, cosine retrieval, mock embeddings) and `test_rank.py` (weighted merge, weight sensitivity,
-recency decay, determinism). Query mode switching and integration tests are distributed within
-existing test modules (`test_cli.py`, `test_sem.py`).
+140 tests across 7 modules, all passing on Python 3.10–3.12:
 
-Phase 3 added `test_correct.py` with 28 tests covering: edge CRUD (add, remove, list, idempotent
-updates), validation (self-correction rejection, missing doc_key rejection), cycle detection
-(direct and transitive), correction scores (direct, chained, confidence-weighted, clamped range,
-empty input), correction chains (head/middle/tail of chain, edges included), and schema migration
-(v1 → v2). Updated `test_rank.py` to explicitly set correction weight to 0 when testing
-zero-weight behavior. Total: 102 tests, all passing on Python 3.10–3.12.
-
-Phase 4 added `test_explain.py` with 24 tests covering: citation generation (basic, truncation,
-newlines, empty reason codes), dominant factor analysis (top-N, negligible filtering, all-zero),
-explain result (basic, evidence pointers, no-conn handling, serialization, unknown reason codes),
-explain results (multiple, empty), format explanation (basic, verbose mode, correction evidence),
-and database integration (correction evidence from DB, no corrections, end-to-end
-index→correct→query→explain pipeline). CLI `explain` command tested via `test_cli.py`.
-
-Phase 5 added `test_e2e.py` and fixture corpus `tests/fixtures/e2e/` (sci-fi themed, 17 docs +
-manifest). Coverage includes full ingest→query→rank→explain flows, correction outrank
-regressions, trust/recency assertions, edge cases (empty corpus, single-document corpus,
-re-index idempotency, CJK token retrieval), and semantic/hybrid smoke checks under
-`@pytest.mark.slow` using real embeddings when semantic extras are installed.
-
-Total: 140 tests, all passing.
+- **`test_db.py`** — database layer.
+- **`test_ingest.py`** — chunk extraction from markdown, email, plain text. Metadata tagging. Idempotent upserts.
+- **`test_lex.py`** — FTS5/BM25 search, ranking, edge cases (CJK, code blocks, empty queries, stop words).
+- **`test_sem.py`** — embedding storage, cosine retrieval, mock embeddings. Query mode switching.
+- **`test_rank.py`** — weighted merge formula, weight sensitivity, recency decay, determinism, correction weight integration.
+- **`test_correct.py`** — edge CRUD, validation (self-correction/missing doc_key rejection), cycle detection (direct/transitive), correction scores (chained, confidence-weighted, clamped), schema migration (v1→v2).
+- **`test_explain.py`** — citation generation, dominant factor analysis, evidence pointers, correction evidence, verbose/JSON formatting, end-to-end index→correct→query→explain pipeline.
+- **`test_e2e.py`** — full pipeline tests with sci-fi fixture corpus (`tests/fixtures/e2e/`, 17 docs + manifest). Correction outrank regressions, trust/recency assertions, edge cases (empty corpus, single-document, re-index idempotency, CJK retrieval), semantic/hybrid smoke tests (`@pytest.mark.slow`).
