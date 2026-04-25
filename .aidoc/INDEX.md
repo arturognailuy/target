@@ -19,6 +19,7 @@ with semantic vector similarity, plus correction-aware ranking and explainable r
 | [Correction Graph](designs/correction-graph.md) | Designs | Active | Graph model, scoring formula, cycle detection, edge cases |
 | [Performance Plan](designs/performance-plan.md) | Designs | Draft | Model loading optimization options (ONNX, daemon, smaller models) |
 | [Testing Strategy](conventions/testing-strategy.md) | Conventions | Active | Unit, integration, and evaluation testing approach |
+| [E2E Test Plan](conventions/e2e-test-plan.md) | Conventions | Draft | End-to-end test plan: fixture corpus, pipeline tests, correction regression |
 | [Development Plan](workflows/development-plan.md) | Workflows | Active | Five-phase build plan with deliverables |
 | [Setup Guide](workflows/setup-guide.md) | Workflows | Active | Environment setup, running tests, quick start |
 
@@ -28,4 +29,4 @@ with semantic vector similarity, plus correction-aware ranking and explainable r
 
 **Architecture deep-dive:** System Overview → Interface Contract → Correction Graph
 
-**Starting development:** Setup Guide → Development Plan → Testing Strategy → System Overview
+**Starting development:** Setup Guide → Development Plan → Testing Strategy → E2E Test Plan → System Overview
