@@ -101,12 +101,50 @@ Built on the existing sci-fi E2E fixture corpus. Each eval query specifies:
 The eval set extends E2E fixtures with explicit relevance judgments — the same documents,
 but with richer annotations about what counts as a correct result and why.
 
-## Implementation Plan
+## Baseline Results
 
-**Single PR delivering:**
-- `target eval` CLI subcommands (snapshot, diff, report, tune)
-- Eval query set with relevance judgments (extending E2E fixtures)
+Established from the 12-query eval set against the 17-document sci-fi fixture corpus.
+These numbers are the reference point for future tuning — compare against them when
+changing weights, adding features, or modifying ranking logic.
+
+### Three-Mode Comparison
+
+| Mode | P@5 | Correction Recall | Noise Rate |
+|------|-----|-------------------|------------|
+| **Hybrid** (default) | **95.83%** | **100.00%** | 4.17% |
+| **Semantic-only** | 95.83% | 66.67% | 4.17% |
+| **Lexical-only** | 50.00% | 66.67% | 50.00% |
+
+### Key Takeaways
+
+- **Hybrid is the clear winner.** Same retrieval quality as semantic-only (95.83% P@5)
+  but with 100% correction recall vs 66.67%. The combination of semantic similarity +
+  correction boost is stronger than either signal alone.
+- **Semantic-only** has excellent retrieval (finds docs by meaning) but weaker correction
+  recall. Semantically similar correction pairs aren't differentiated well enough by the
+  correction weight alone.
+- **Lexical-only** confirms the baseline: BM25 misses conceptual matches (queries using
+  different wording), dropping P@5 to 50%.
+- The single sub-100% query across hybrid/semantic modes is "bureaucratic aliens paperwork"
+  (50% P@5) — a fixture breadth issue, not a system issue.
+
+### Weight Tuning Results
+
+Grid search in hybrid mode found optimal weights: semantic=0.5, correction=0.5 (zeroing
+out lexical, recency, and trust). However, this aggressive configuration is overfit to the
+sci-fi fixture corpus and unlikely to generalize well to diverse real-world content.
+
+**Decision:** Keep the current balanced defaults (0.35/0.25/0.15/0.10/0.15) and let users
+override via CLI flags when domain-specific tuning is needed. The tuner's recommended
+weights are documented as a data point, not applied as defaults.
+
+## Implementation
+
+**Delivered in PR #8:**
+- `target eval` CLI subcommands (snapshot, diff, report, tune, benchmark)
+- Eval query set with relevance judgments (12 queries, extending E2E fixtures)
 - Metrics computation (precision@k, correction recall, noise rate)
 - Weight grid search with best-weights selection
 - Performance benchmark scripts (latency, throughput, memory)
-- Documentation updates
+- Baseline results across all three modes (see above)
+- 152 total tests (12 new in test_eval.py), CI green on Python 3.10–3.12

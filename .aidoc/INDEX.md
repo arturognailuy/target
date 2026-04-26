@@ -18,7 +18,7 @@ with semantic vector similarity, plus correction-aware ranking and explainable r
 | [Interface Contract](designs/interface-contract.md) | Designs | Active | Public API surface, query modes, design principles, invariants |
 | [Correction Graph](designs/correction-graph.md) | Designs | Active | Graph model, scoring formula, cycle detection, edge cases |
 | [Performance Plan](designs/performance-plan.md) | Designs | Draft | Model loading optimization options (ONNX, daemon, smaller models) |
-| [Evaluation and Tuning](designs/evaluation-tuning.md) | Designs | Draft | Regression harness, quality metrics, weight tuning, benchmarks |
+| [Evaluation and Tuning](designs/evaluation-tuning.md) | Designs | Active | Regression harness, quality metrics, weight tuning, baseline results |
 | [Testing Strategy](conventions/testing-strategy.md) | Conventions | Active | Unit, integration, and evaluation testing approach |
 | [E2E Testing](conventions/e2e-testing.md) | Conventions | Active | End-to-end testing strategy: fixture corpus, pipeline regression, correction validation |
 | [Development Plan](workflows/development-plan.md) | Workflows | Active | Six-phase build plan with deliverables |

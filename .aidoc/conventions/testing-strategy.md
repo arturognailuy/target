@@ -59,11 +59,11 @@ model (all-MiniLM-L6-v2) for integration tests.
 - GitHub Actions runs on every push and PR against `main`.
 - Matrix: Python 3.10, 3.11, 3.12.
 - Steps: lint (ruff) → test (pytest).
-- Integration tests (with embedding model) will run on schedule or before releases once Phase 2 is implemented.
+- Integration tests (with embedding model) run as part of the regular test suite.
 
 ## Current State
 
-140 tests across 7 modules, all passing on Python 3.10–3.12:
+152 tests across 9 modules, all passing on Python 3.10–3.12:
 
 - **`test_db.py`** — database layer.
 - **`test_ingest.py`** — chunk extraction from markdown, email, plain text. Metadata tagging. Idempotent upserts.
