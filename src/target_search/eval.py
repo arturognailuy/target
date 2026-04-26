@@ -159,10 +159,12 @@ def evaluate(
         top_scores = [r.final_score for r in results]
 
         # Precision@k: fraction of top-k results that are relevant
+        # Deduplicate by doc_key to avoid counting multiple chunks from the
+        # same document more than once (fixes >100% P@k in hybrid mode).
         if eq.relevant_keys:
-            relevant_in_top = sum(1 for k in top_keys if k in eq.relevant_keys)
+            unique_relevant_in_top = len(set(top_keys) & set(eq.relevant_keys))
             denom = min(top_k, len(eq.relevant_keys))
-            p_at_k = relevant_in_top / denom if denom > 0 else 0.0
+            p_at_k = unique_relevant_in_top / denom if denom > 0 else 0.0
         else:
             p_at_k = 1.0  # No relevance judgments = skip
 
