@@ -1,0 +1,67 @@
+{
+  "queries": [
+    {
+      "text": "positronic brain operating speed",
+      "topic": "robotics",
+      "relevant_keys": ["bulletin:robotics:positronic-errata", "encyclopedia:robotics:positronic-brain"],
+      "must_outrank": [["bulletin:robotics:positronic-errata", "encyclopedia:robotics:positronic-brain"]]
+    },
+    {
+      "text": "colony ship passenger count prometheus",
+      "topic": "space",
+      "relevant_keys": ["manifest:space:prometheus-corrected", "manifest:space:prometheus"],
+      "must_outrank": [["manifest:space:prometheus-corrected", "manifest:space:prometheus"]]
+    },
+    {
+      "text": "shortest hyperspace route to periphery",
+      "topic": "space",
+      "relevant_keys": ["bulletin:space:route-beta9", "encyclopedia:space:route-alpha7"],
+      "must_outrank": [["bulletin:space:route-beta9", "encyclopedia:space:route-alpha7"]]
+    },
+    {
+      "text": "Three Laws of Robotics",
+      "topic": "robotics",
+      "relevant_keys": ["encyclopedia:robotics:positronic-brain", "encyclopedia:robotics:ethics"]
+    },
+    {
+      "text": "improbability drive quantum",
+      "topic": "comedy",
+      "relevant_keys": ["guide:comedy:improbability-drive"]
+    },
+    {
+      "text": "towel hitchhiker",
+      "topic": "comedy",
+      "relevant_keys": ["guide:comedy:towel-requisition"]
+    },
+    {
+      "text": "silicon based alien life xenolinguistics",
+      "topic": "contact",
+      "relevant_keys": ["report:contact:xenolinguistics", "report:contact:keplerian-incident"]
+    },
+    {
+      "text": "psychohistory Seldon Foundation",
+      "topic": "space",
+      "relevant_keys": ["encyclopedia:space:psychohistory"]
+    },
+    {
+      "text": "robot human relationship ethics dilemma",
+      "topic": "robotics",
+      "relevant_keys": ["encyclopedia:robotics:ethics", "encyclopedia:robotics:positronic-brain"]
+    },
+    {
+      "text": "galactic empire trade administration",
+      "topic": "space",
+      "relevant_keys": ["encyclopedia:space:psychohistory"]
+    },
+    {
+      "text": "bureaucratic aliens paperwork",
+      "topic": "comedy",
+      "relevant_keys": ["guide:comedy:towel-requisition", "guide:comedy:improbability-drive"]
+    },
+    {
+      "text": "first contact protocol diplomatic",
+      "topic": "contact",
+      "relevant_keys": ["report:contact:keplerian-incident", "report:contact:xenolinguistics"]
+    }
+  ]
+}

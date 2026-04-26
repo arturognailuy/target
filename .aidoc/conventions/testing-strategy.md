@@ -59,11 +59,11 @@ model (all-MiniLM-L6-v2) for integration tests.
 - GitHub Actions runs on every push and PR against `main`.
 - Matrix: Python 3.10, 3.11, 3.12.
 - Steps: lint (ruff) → test (pytest).
-- Integration tests (with embedding model) will run on schedule or before releases once Phase 2 is implemented.
+- Integration tests (with embedding model) run as part of the regular test suite.
 
 ## Current State
 
-140 tests across 7 modules, all passing on Python 3.10–3.12:
+152 tests across 9 modules, all passing on Python 3.10–3.12:
 
 - **`test_db.py`** — database layer.
 - **`test_ingest.py`** — chunk extraction from markdown, email, plain text. Metadata tagging. Idempotent upserts.
@@ -73,3 +73,4 @@ model (all-MiniLM-L6-v2) for integration tests.
 - **`test_correct.py`** — edge CRUD, validation (self-correction/missing doc_key rejection), cycle detection (direct/transitive), correction scores (chained, confidence-weighted, clamped), schema migration (v1→v2).
 - **`test_explain.py`** — citation generation, dominant factor analysis, evidence pointers, correction evidence, verbose/JSON formatting, end-to-end index→correct→query→explain pipeline.
 - **`test_e2e.py`** — full pipeline tests with sci-fi fixture corpus (`tests/fixtures/e2e/`, 17 docs + manifest). Correction outrank regressions, trust/recency assertions, edge cases (empty corpus, single-document, re-index idempotency, CJK retrieval), semantic/hybrid smoke tests (`@pytest.mark.slow`).
+- **`test_eval.py`** — evaluation framework: metrics computation (precision@k, correction recall, noise rate), snapshot save/load/diff, eval set loading with backward compatibility, weight grid search, performance benchmarks.

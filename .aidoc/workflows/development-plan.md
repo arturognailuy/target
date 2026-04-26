@@ -9,9 +9,7 @@ dependencies:
 
 # Development Plan
 
-Target is built in six phases, each delivering a usable increment. Estimated timeline:
-weeks 1–2 for a working retriever, week 3 for correction logic, week 4 for explainability,
-week 5 for end-to-end testing, and week 6+ for evaluation and tuning.
+Target is built in six phases, each delivering a usable increment.
 
 ## Related Docs
 
@@ -59,9 +57,11 @@ week 5 for end-to-end testing, and week 6+ for evaluation and tuning.
 
 ## Phase 6: Evaluation and Tuning
 
-- Regression harness (snapshot-based)
-- Weight tuning experiments
-- Performance benchmarks
+- Regression harness: snapshot-based golden-answer testing (`target eval snapshot/diff`)
+- Quality metrics: precision@k, correction recall, noise rate (`target eval report`)
+- Weight tuning: grid search over ranking formula weights (`target eval tune`)
+- Performance benchmarks: query latency, index throughput, memory usage
+- Design doc: `.aidoc/designs/evaluation-tuning.md`
 
 ## Current Status
 
@@ -96,4 +96,11 @@ Phase 5 (E2E tests) is **complete** (PR #7). Delivered: sci-fi fixture corpus
 weighting, explain output validation, edge cases (empty/single-doc/re-index/CJK), and semantic+
 hybrid smoke coverage under `@pytest.mark.slow`.
 
-Total test suite is now 140 passing tests. Phase 6 (evaluation and tuning) is next.
+Total test suite is now 152 passing tests. All six phases are complete.
+
+Phase 6 (evaluation and tuning) is **complete** (PR #8). Delivered: `target-eval` module
+(evaluation framework, snapshot/diff regression harness, quality metrics, weight grid search,
+performance benchmarks), CLI `target eval` subcommand group with `snapshot`, `diff`, `report`,
+`tune`, and `benchmark` commands, eval query set (`tests/eval/eval_queries.json`, 12 queries
+with relevance judgments and must-outrank pairs), and 152 tests total (12 new in test_eval.py).
+All tests pass on Python 3.10–3.12.

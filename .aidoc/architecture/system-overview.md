@@ -80,7 +80,9 @@ database queries except optional correction chain lookup.
 Thin CLI wrapper using click. Commands: `target index [--embed]`, `target index-stdin`, `target
 query [--top-n N] [--mode hybrid|lex|sem] [--json-output] [--audit]`, `target explain [--top-n N]
 [--mode hybrid|lex|sem] [--json-output] [--verbose]`, `target embed`,
-`target stats`, `target correct`, `target uncorrect`, `target corrections [--doc-key KEY]`.
+`target stats`, `target correct`, `target uncorrect`, `target corrections [--doc-key KEY]`,
+`target eval snapshot`, `target eval diff`, `target eval report`, `target eval tune`,
+`target eval benchmark`.
 Query mode controls search method: `hybrid` (default, combines BM25 + semantic + corrections),
 `lex` (keyword only, no model loading), `sem` (vector only). When no embeddings exist,
 hybrid silently falls back to lexical-only. `--audit` includes correction chain info in results.
