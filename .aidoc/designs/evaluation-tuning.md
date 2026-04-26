@@ -24,7 +24,7 @@ to answer: "Does the system return the right results in the right order, and how
 
 ## Why
 
-Phases 1–5 built and tested the retrieval pipeline. But passing tests only proves the system
+The retrieval pipeline is built and tested. But passing tests only proves the system
 doesn't crash — it doesn't prove it returns *good* results. Evaluation closes this gap by
 measuring ranking quality with concrete metrics, detecting regressions when code or weights
 change, and systematically finding better weight configurations.
