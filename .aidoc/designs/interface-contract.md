@@ -87,6 +87,14 @@ Transitive chains propagate (A corrects B, B corrects C → A dominates C).
 Each result explanation includes: human-readable citation, dominant contributing factors,
 reason code descriptions, evidence pointers (chunk/record IDs), and correction chain evidence.
 
+### Evaluation and Tuning
+
+- `target eval snapshot EVAL_SET` — run eval queries, save ranked results as golden snapshots
+- `target eval diff EVAL_SET` — compare current results against saved snapshots
+- `target eval report EVAL_SET` — compute quality metrics (precision@k, correction recall, noise rate)
+- `target eval tune EVAL_SET` — grid search over weight combinations for optimal ranking
+- `target eval benchmark EVAL_SET` — measure query latency across the eval set
+
 ## Design Principles
 
 1. **Minimal interface.** Consumers see only `index()` and `query()`.

@@ -439,6 +439,204 @@ def explain_cmd(
             click.echo(format_explanation(expl, verbose=verbose))
 
 
+# --- Eval subcommands ---
+
+@main.group("eval")
+@click.pass_context
+def eval_group(ctx: click.Context) -> None:
+    """Evaluation, regression testing, and weight tuning."""
+    pass
+
+
+@eval_group.command("snapshot")
+@click.argument("eval_set", type=click.Path(exists=True))
+@click.option("--output", "-o", default="tests/eval/snapshot.json", help="Snapshot output path.")
+@click.option("--top-k", type=int, default=5, help="Results per query.")
+@click.option("--mode", type=click.Choice(["hybrid", "lex", "sem"]), default="lex")
+@click.pass_context
+def eval_snapshot_cmd(
+    ctx: click.Context, eval_set: str, output: str, top_k: int, mode: str
+) -> None:
+    """Run eval queries and save results as golden snapshots."""
+    from target_search.eval import load_eval_set, save_snapshot, snapshot
+
+    conn = open_db(ctx.obj["db_path"])
+    queries = load_eval_set(eval_set)
+    entries = snapshot(conn, queries, top_k=top_k, mode=mode)
+    save_snapshot(entries, output)
+    conn.close()
+    click.echo(f"Snapshot saved: {output} ({len(entries)} queries)")
+
+
+@eval_group.command("diff")
+@click.argument("eval_set", type=click.Path(exists=True))
+@click.option("--snapshot-path", "-s", default="tests/eval/snapshot.json",
+              help="Saved snapshot to compare against.")
+@click.option("--top-k", type=int, default=5)
+@click.option("--mode", type=click.Choice(["hybrid", "lex", "sem"]), default="lex")
+@click.option("--json-output", "json_out", is_flag=True)
+@click.pass_context
+def eval_diff_cmd(
+    ctx: click.Context, eval_set: str, snapshot_path: str, top_k: int,
+    mode: str, json_out: bool,
+) -> None:
+    """Compare current results against saved snapshots."""
+    from target_search.eval import (
+        diff_snapshot,
+        load_eval_set,
+        load_snapshot,
+        snapshot,
+    )
+
+    conn = open_db(ctx.obj["db_path"])
+    queries = load_eval_set(eval_set)
+    current = snapshot(conn, queries, top_k=top_k, mode=mode)
+    saved = load_snapshot(snapshot_path)
+    conn.close()
+
+    diffs = diff_snapshot(saved, current)
+
+    if json_out:
+        click.echo(json.dumps(
+            [{"query": d.query_text, "status": d.status,
+              "rank_changes": d.rank_changes} for d in diffs],
+            indent=2,
+        ))
+    else:
+        changed = [d for d in diffs if d.status != "unchanged"]
+        click.echo(f"Compared {len(diffs)} queries: "
+                   f"{len(diffs) - len(changed)} unchanged, {len(changed)} changed")
+        for d in changed:
+            click.echo(f"\n  [{d.status.upper()}] {d.query_text}")
+            for rc in d.rank_changes:
+                old = rc['old_rank'] or 'absent'
+                new = rc['new_rank'] or 'absent'
+                click.echo(f"    {rc['doc_key']}: rank {old} → {new}")
+
+
+@eval_group.command("report")
+@click.argument("eval_set", type=click.Path(exists=True))
+@click.option("--top-k", type=int, default=5)
+@click.option("--mode", type=click.Choice(["hybrid", "lex", "sem"]), default="lex")
+@click.option("--json-output", "json_out", is_flag=True)
+@click.pass_context
+def eval_report_cmd(
+    ctx: click.Context, eval_set: str, top_k: int, mode: str, json_out: bool,
+) -> None:
+    """Compute and display quality metrics."""
+    from target_search.eval import evaluate, load_eval_set
+
+    conn = open_db(ctx.obj["db_path"])
+    queries = load_eval_set(eval_set)
+    report = evaluate(conn, queries, top_k=top_k, mode=mode)
+    conn.close()
+
+    if json_out:
+        click.echo(json.dumps({
+            "precision_at_k": round(report.precision_at_k, 4),
+            "correction_recall": round(report.correction_recall, 4),
+            "noise_rate": round(report.noise_rate, 4),
+            "query_count": report.query_count,
+            "per_query": [
+                {
+                    "query": qr.query_text,
+                    "precision": round(qr.precision_at_k, 4),
+                    "outrank_pass": qr.outrank_pass,
+                    "top_keys": qr.top_keys,
+                }
+                for qr in report.per_query
+            ],
+        }, indent=2))
+    else:
+        click.echo(f"\n=== Evaluation Report (top-{top_k}, {mode} mode) ===")
+        click.echo(f"  Queries: {report.query_count}")
+        click.echo(f"  Precision@{top_k}: {report.precision_at_k:.2%}")
+        click.echo(f"  Correction recall: {report.correction_recall:.2%}")
+        click.echo(f"  Noise rate: {report.noise_rate:.2%}")
+        click.echo("")
+        for qr in report.per_query:
+            status = "✓" if qr.outrank_pass else "✗"
+            click.echo(f"  {status} \"{qr.query_text}\" — P@{top_k}={qr.precision_at_k:.2%}")
+            for od in qr.outrank_details:
+                mark = "✓" if od["passed"] else "✗"
+                click.echo(f"      {mark} {od['higher']} > {od['lower']}")
+
+
+@eval_group.command("tune")
+@click.argument("eval_set", type=click.Path(exists=True))
+@click.option("--top-k", type=int, default=5)
+@click.option("--mode", type=click.Choice(["hybrid", "lex", "sem"]), default="lex")
+@click.option("--steps", type=int, default=5, help="Grid search granularity per weight.")
+@click.option("--json-output", "json_out", is_flag=True)
+@click.pass_context
+def eval_tune_cmd(
+    ctx: click.Context, eval_set: str, top_k: int, mode: str, steps: int,
+    json_out: bool,
+) -> None:
+    """Run weight grid search and report optimal weights."""
+    from target_search.eval import load_eval_set, tune_weights
+
+    conn = open_db(ctx.obj["db_path"])
+    queries = load_eval_set(eval_set)
+    click.echo(f"Tuning weights (steps={steps}, {steps**5} combinations)...")
+    result = tune_weights(conn, queries, top_k=top_k, mode=mode, steps=steps)
+    conn.close()
+
+    if json_out:
+        click.echo(json.dumps(result, indent=2))
+    else:
+        bw = result["best_weights"]
+        click.echo("\n=== Weight Tuning Results ===")
+        click.echo(f"  Combinations tested: {result['total_combinations']}")
+        click.echo(f"  Best combined score: {result['best_score']}")
+        click.echo("  Best weights:")
+        click.echo(f"    semantic={bw['semantic']}, lexical={bw['lexical']}, "
+                   f"recency={bw['recency']}, correction={bw['correction']}, "
+                   f"trust={bw['trust']}")
+        click.echo("\n  Top 5 combinations:")
+        for i, r in enumerate(result["top_10"][:5], 1):
+            w = r["weights"]
+            click.echo(
+                f"    {i}. P@k={r['precision_at_k']:.2%} CR={r['correction_recall']:.2%} "
+                f"score={r['combined_score']} "
+                f"[s={w['semantic']}, l={w['lexical']}, r={w['recency']}, "
+                f"c={w['correction']}, t={w['trust']}]"
+            )
+
+
+@eval_group.command("benchmark")
+@click.argument("eval_set", type=click.Path(exists=True))
+@click.option("--iterations", type=int, default=10, help="Iterations per query.")
+@click.option("--mode", type=click.Choice(["hybrid", "lex", "sem"]), default="lex")
+@click.option("--json-output", "json_out", is_flag=True)
+@click.pass_context
+def eval_benchmark_cmd(
+    ctx: click.Context, eval_set: str, iterations: int, mode: str, json_out: bool,
+) -> None:
+    """Run performance benchmarks (query latency)."""
+    from target_search.eval import benchmark, load_eval_set
+
+    conn = open_db(ctx.obj["db_path"])
+    queries = load_eval_set(eval_set)
+    result = benchmark(conn, queries, mode=mode, iterations=iterations)
+    conn.close()
+
+    if json_out:
+        click.echo(json.dumps(result, indent=2))
+    else:
+        click.echo(f"\n=== Performance Benchmark ({iterations} iterations/query) ===")
+        click.echo(f"  Queries: {result['query_count']}")
+        click.echo(f"  Median latency: {result['median_ms']} ms")
+        click.echo(f"  P95 latency: {result['p95_ms']} ms")
+        click.echo(f"  Mean latency: {result['mean_ms']} ms")
+        click.echo("")
+        for t in result["per_query"]:
+            click.echo(
+                f"  \"{t['query']}\" — {t['mean_ms']} ms "
+                f"(min={t['min_ms']}, max={t['max_ms']})"
+            )
+
+
 @main.command("stats")
 @click.pass_context
 def stats_cmd(ctx: click.Context) -> None:

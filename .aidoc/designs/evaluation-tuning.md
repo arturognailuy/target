@@ -1,6 +1,6 @@
 ---
 domain: Designs
-status: Draft
+status: Active
 entry_points: []
 dependencies:
   - .aidoc/architecture/system-overview.md
@@ -10,7 +10,7 @@ dependencies:
 
 # Evaluation and Tuning
 
-Phase 6 adds a regression harness, quality metrics, weight tuning, and performance benchmarks
+A regression harness, quality metrics, weight tuning, and performance benchmarks
 to answer: "Does the system return the right results in the right order, and how do we improve it?"
 
 ## Related Docs

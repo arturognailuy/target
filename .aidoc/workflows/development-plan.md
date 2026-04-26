@@ -96,4 +96,11 @@ Phase 5 (E2E tests) is **complete** (PR #7). Delivered: sci-fi fixture corpus
 weighting, explain output validation, edge cases (empty/single-doc/re-index/CJK), and semantic+
 hybrid smoke coverage under `@pytest.mark.slow`.
 
-Total test suite is now 140 passing tests. Phase 6 (evaluation and tuning) is next.
+Total test suite is now 152 passing tests. All six phases are complete.
+
+Phase 6 (evaluation and tuning) is **complete** (PR #8). Delivered: `target-eval` module
+(evaluation framework, snapshot/diff regression harness, quality metrics, weight grid search,
+performance benchmarks), CLI `target eval` subcommand group with `snapshot`, `diff`, `report`,
+`tune`, and `benchmark` commands, eval query set (`tests/eval/eval_queries.json`, 12 queries
+with relevance judgments and must-outrank pairs), and 152 tests total (12 new in test_eval.py).
+All tests pass on Python 3.10–3.12.
