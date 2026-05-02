@@ -21,6 +21,24 @@ class LexResult:
     created_at: str | None
 
 
+def _sanitize_fts5_query(query: str) -> str:
+    """Sanitize a free-text query for FTS5 MATCH.
+
+    FTS5 treats bare words that collide with column names or operators
+    (e.g. "in", "or", "not") as syntax — causing 'no such column' errors.
+    We quote every token so they're all treated as literal search terms,
+    then join with implicit AND.
+    """
+    import re
+
+    # Strip anything that isn't alphanumeric, whitespace, or basic punctuation
+    tokens = re.findall(r"[\w]+", query)
+    if not tokens:
+        return ""
+    # Double-quote each token; FTS5 treats quoted strings as literals
+    return " ".join(f'"{t}"' for t in tokens)
+
+
 def search_lex(
     conn: sqlite3.Connection,
     query: str,
@@ -32,6 +50,12 @@ def search_lex(
     in SQLite FTS5; we negate so higher = better).
     """
     if not query.strip():
+        return []
+
+    # Sanitize query for FTS5: quote each token so words like "in" or
+    # "improvement" aren't mistaken for column names or FTS5 operators.
+    sanitized = _sanitize_fts5_query(query)
+    if not sanitized:
         return []
 
     # FTS5 bm25() returns negative scores (more negative = more relevant)
@@ -55,7 +79,7 @@ def search_lex(
         ORDER BY bm25(chunk_fts)
         LIMIT ?
         """,
-        (query, top_n),
+        (sanitized, top_n),
     ).fetchall()
 
     return [
